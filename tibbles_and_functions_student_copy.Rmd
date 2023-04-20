@@ -1,0 +1,1181 @@
+---
+title: "Functions, Conditionals, Loops, Tibbles, and Tidy Data"
+author: "Bonfire-113"
+date: 2023-03-31
+---
+
+## Functions and Conditionals
+
+### Functions
+
+#### When should we use functions?
+
+```{r}
+# In Python, this is what we are used to seeing
+# def minute(min1, min2_10m, min11, s):
+# Do stuff
+# return stuff
+
+our_function <- function(optional_params){
+  # Do stuff
+  
+}
+our_function
+```
+
+An example:
+
+```{r}
+# Create a function that can convert C to F
+# Formula for conversion is C *(9/5) + 32
+test_temp <- c(16.550540, 26.942005, 32.591088, 8.580116, 28.003873, 28.542391, 21.976820, 21.173577, 21.048836, 18.769735)
+
+# Then we want to create our function to convert
+c_to_f <- function(v) {
+  temp_fahr <- v  * (9/5) + 32
+  
+  return(temp_fahr)
+}
+c_to_f(26)
+```
+
+This is all cool.. but it didn't do anything. We need to call the function!
+
+```{r}
+c_to_f(test_temp)
+```
+
+Notice that in the background here, we are looping over each item in the array, but we never write a for loop! Keep this in mind, since when you pass in a large data set, the changes made by functions aren't quite immediate - the computer does have to go over each item in your data set, and change them one at a time.
+
+A shortcut of sorts is to use the `apply()` function, which operates very similarly to Python's `map()`. Note that `apply` syntax goes as follows: `apply(X, MARGIN, FUN)` where X is the data set to use, MARGIN is specification for rows or columns, and FUN is the function to apply.
+
+```{r}
+test_mat <- matrix(c(1,1,1,2,2,2), nrow=2)
+test_mat
+
+# Apply:
+# First, we gave it the X, or our Data source
+# Then we told it where to apply the function
+# Then we told it what function to apply. Sum is a built in R function
+apply(test_mat, 2, sum)
+```
+
+It is common to use `mean`, `median`, `sum`, `min`, or `max` with `apply`, but we can also use our user-defined functions as well. Note that apply() only works with matrices.
+
+```{r}
+test_temp_matrix <- matrix(c(16.550540, 26.942005, 32.591088, 8.580116, 28.003873, 28.542391, 21.976820, 21.173577, 21.048836, 18.769735), nrow =2)
+
+test_temp_matrix
+
+apply(test_temp_matrix, 1, c_to_f)
+```
+
+#### More Functions!
+
+Now, let's create a function to check if a number is even or odd!
+
+```{r}
+check_num <- function(x){
+  if (x %% 2 == 0){
+    print('Even')
+  } else {
+    print('Odd')
+  }
+}
+
+check_num(4)
+check_num(7)
+
+```
+
+Next, let's calculate a factorial:
+
+```{r}
+calc_factorial <- function(x) {
+  if(x < 0) {
+    print("Factorial is not defined for negative numbers.")
+  } else if (x == 0) {
+    print("Factorial of 0 is 1")
+  } else{
+    result <- 1
+    for(i in 1:x){
+    result <- result * i
+    }
+    # Paste is a concatenation function. It's the same as an f string basically.
+    print(paste("Factorial of ", x, " is ", result, "."))
+  }
+}
+
+# Test it out
+calc_factorial(5) # 5*4*3*2*1, 120
+calc_factorial(-3)
+calc_factorial(0)
+```
+
+What if we wanted to use a function on a vector?:
+
+```{r}
+# Calculate the mean of a vector
+# Aggregate a vector into a single number
+calc_mean <- function(x){
+  # Is it empty?
+  if (length(x) == 0) {
+    print("Cannont calculate the mean of an empty vector.")
+  } else {
+    sum <- 0 
+    for(i in 1:length(x)) {
+      
+    }
+      sum <- sum + x[i]
+    print(paste0("Mean of vector is: ", sum/length(x), '.'))
+  }
+}
+
+# Test it out!
+calc_mean(c(2,4,6))
+calc_mean(c(1,3,5,7))
+```
+
+```{r}
+# Maximum of a vector 
+calc_max <- function(x) {
+  if (length(x) == 0) {
+    print("Cannot calculate the maximum of an empty vector.")
+  } else {
+    max_val <- x[1]
+    for (i in 2:length(x)) {
+      if (x[i] > max_val) {
+        max_val <- x[i]
+      }
+    }
+    print(paste0("Maximum value of the vector is: ", max_val, "."))
+  }
+}
+
+calc_max(c(2,4,6))
+calc_max(c())
+```
+
+## In Class Excercise 1:
+
+Create a function that checks if a number is positive or negative. Your function should account for zero.
+
+Test it using a positive and negative number as well as 0.
+
+```{r}
+check_value <- function(x) {
+  if (x < 0) {
+    print("negative")
+  } else if (x > 0) {
+    print("positive")
+  } else {
+    print("zero")
+  }
+}
+check_value(-6)
+```
+
+## Conditionals
+
+The basic syntax for an if statement goes like this:
+
+```{r}
+# If value == 0:
+#   do something
+
+# in R, we follow JS
+if (logical_statement) {
+  do something
+} else {
+  do something else
+}
+```
+
+The logical statements should boil down to a boolean; for example:
+
+```{r}
+a <- 10
+
+if(a<=5) {
+  print(a)
+} else {
+  print ("It's more than 5")
+}
+```
+
+We can also add else if statements in the middle if we need more options.
+
+```{r}
+# In Python, we write this as elif
+# In R, we use elif if
+b <- 15
+
+if (b <= 5) {
+  print("small number")
+} else if (b > 5 & b <= 10) {
+  print("medium number")
+} else {
+  print("big number")
+}
+
+```
+
+Neat! We can also nest conditionals just like we do in Python.
+
+```{r}
+ c <- 5
+ 
+ if(c/2 != 0){
+   if(c=5){
+     print('c is 5')
+   }
+ }
+```
+
+Nested ifelse statement: This is a powerful way to evaluate multiple conditions within a single ifelse statement. The syntax for nested ifelse statements is ifelse(condition1, value1, ifelse(condition2, value2, ifelse(condition3, value3, value4))). Here is an example:
+
+```{r}
+x <- 10
+y <- ifelse(x < 5, "low", ifelse(x<10, "medium", "high"))
+y 
+```
+
+Switch statement: The switch statement is similar to a series of ifelse statements but can be more efficient and easier to read. The syntax is switch(expression, value1, value2, ..., valueN).
+
+```{r}
+z <- 2
+switch(z, "one", "two", "three")
+```
+
+Case_when statement: The case_when statement is a versatile way to evaluate multiple conditions and assign values. The syntax is case_when(condition1 \~ value1, condition2 \~ value2, ..., TRUE \~ valueN).
+
+```{r}
+x <- 10
+case_when(x < 5 ~ "low", x < 10 ~ "medium", TRUE ~ "high")
+```
+
+Short-circuit evaluation: Short-circuit evaluation is a way to evaluate conditional statements more efficiently by only checking the second condition if the first condition is true. The syntax is condition1 && condition2.
+
+```{r}
+x <- 10
+y <- if(x <5 || x> 20){
+  "out of range"
+} else {
+  print("in range")
+}
+```
+
+## In Class Exercise 2:
+
+Create two vectors of numbers. Using a conditional statement, change the value for the vectors into a character type:
+
+```{r}
+vector1 < c(4,9,12,14,20)
+vector2 < c(7,17,21,35,40)
+
+for (i in 1:length(vector1)){
+  
+}
+```
+
+Neat! Now, let's look at another core part of R programming - Loops!
+
+### Loops
+
+```{r}
+for(val in x){
+  # Do Something
+}
+```
+
+```{r}
+for (val in 1:5){
+  print(paste(val, "is greater than", value -1))
+}
+```
+
+We can also do nifty stuff with our vectors, such as apply changes to specific indices of our data.
+
+```{r}
+vec <- c(1,1,1,1,1,1,1,1)
+vec
+# Change the first, third, and sixth elements in my vector to the value of 6!
+for(i in c(1,3,6)){
+  vec[i] <-6
+}
+vec
+```
+
+We can loop over more than just lists:
+
+```{r}
+mat <- matrix(1, nrow=5, ncol=5)
+
+for(row in 1:3){
+  for(col in 3:5){
+    mat[row,col] <- 15
+  }
+}
+mat
+```
+
+```{r}
+mat <- matrix(1:12, ncol=4)
+mat
+means <- numeric(nrow(mat))
+means
+
+for (i in 1:nrow(mat)){
+  means[i] <- mean(mat[i,])
+}
+print(means)
+```
+
+```{r}
+mat <- matrix(1:12, ncol = 4)
+sums <- numeric(ncol(mat))
+
+for (i in 1:ncol(mat)) {
+  sums[i] <- sum(mat[, i])
+}
+
+sums
+```
+
+Like Python, we have while loops in R:
+
+```{r}
+
+```
+
+## In Class Exercise 3:
+
+Write a while loop that calculates the sum of the numbers 1-10:
+
+```{r}
+
+```
+
+## Tibbles
+
+### What is a Tibble?
+
+A tibble is a dataframe that has a "modern" take. They are designed to make working with data easier and more intuitive. It is part of our `tidyverse` package!!!!
+
+```{r}
+install.packages('tidyverse')
+libary(tidyverse)
+```
+
+```{r}
+num <- c(1,2,3)
+char <- c("John", "Jane", "Jimmy")
+fact <- factor(c("male", "female", "male"))
+
+logi <- c(TRUE, FALSE, TRUE)
+
+my_tbl <- tibble(num, char, fact, logi)
+my_tbl
+View(my_tbl)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+#### Data Frames VS Tibbles
+
+Some main differences between the two:
+
+-   Tibbles print only the first few rows and all columns that fit on the screen, making it easier to view large data sets without overwhelming the console.
+
+-   Tibbles also show their data type for each column (for example: `<chr>` for character, `<dbl>` for doubles)
+
+-   Tibbles have a stricter subsetting mechanism than data frames. When you extract a single column from a tibble, it returns a tibble instead of a vector. When you extract a single row, it returns a tibble with one row instead of a data frame with one row. This behavior helps avoid common programming errors.
+
+-   Tibbles preserve the case of variable names, while data frames do not. Tibbles also allow column names to be specified with backticks, which is useful when using reserved words or names with spaces or special characters.
+
+-   Tibbles are more consistent than data frames in their treatment of data types. They do not coerce character vectors to factors, and they do not silently drop dimensions when subsetting.
+
+-   Tibbles treat missing values more consistently than data frames. Missing values are always displayed as "NA", regardless of the data type. This avoids the confusion that can arise when missing values are represented differently for different data types (e.g., "NA", "NaN", ".")
+
+```{r}
+my_df <- data.frame(num, char, fact, logi)
+my_df
+
+my_tbl <- tibble(num, char, fact, logi)
+my_tbl
+```
+
+We can see that tibbles offer us much more information! They are also easier to manipulate, work well with tidyr and dplyr.
+
+What if we wanted to convert a Data Frame object into a Tibbles object? We have a method for that!
+
+```{r}
+df <- data.frame(x=1:5, y= letters[1:5], z= c(TRUE, FALSE, TRUE, FALSE, TRUE))
+
+as_tibble(df)
+```
+
+If we need to make a tibble display more columns than it thinks it should, we can override it with `print()`:
+
+```{r}
+print(tb)
+```
+
+The best way to see more of the data than a tibble default displays is to use View(). Nice!
+
+```{r}
+View(tb)
+```
+
+#### Subsetting
+
+```{r}
+df$x
+```
+
+At this point, it should be pointed out that the transformation functions from `dplyr` are extremely valuable in context of subsets. In most programming, there are multiple ways of finding the same answer; this applies here as well.
+
+You can also turn a tibble back into a data frame with `as.data.frame()`. This only really comes into play if you're interacting with older code.
+
+## Reading Data
+
+```{r}
+View(read_csv("C:/Users/kevin/OneDrive/Desktop/Coding Temple/Week 7 (R)))
+```
+
+## Tibble Functions
+
+Tibble and dplyr work wonders together! We can manipulate Tibbles using dplyr functions, which provide us a streamlined way to filter, select, group, summarize, and mutate data! \### `filter()`
+
+```{r}
+
+```
+
+### `select()`
+
+```{r}
+
+```
+
+### `group_by()`, `summarize()`
+
+```{r}
+group_by(my_tbl, fact) %>% summarize(avg_num = mean(num))
+```
+
+### `mutate()`
+
+```{r}
+mutate(my_tbl, num_squared = num ^ 2)
+```
+
+## N/A Values
+
+Tibbles handle missing data in a similar way to data frames. By default, missing values are represented by NA (not available) in tibbles. However, there are several functions available in R to handle missing values in tibbles.
+
+It's worth noting that tibbles also have a special column type for missing values called missing. This can be useful in cases where NA is a valid value in a column, but we want to be able to distinguish between missing values and non-missing values.
+
+One of the most common functions used to handle missing values in tibbles is na_if(), which can be used to replace specified values with NA.
+
+```{r}
+tb <- tibble(x=c(1,2, 'missing', 4,5, 'missing'))
+tb
+```
+
+Now that we replaced all our "missing" values with a NA, let's explore how tibbles handles replacing these values!
+
+Tibbles uses the function `replace_na()`, which we can use to replace all the `NA` values with a specified value.
+
+```{r}
+tb <- tb %>%
+  mutate(y = replace_na(y,0))
+
+tb
+```
+
+## Importing/Exporting Data
+
+Tibbles can be imported and exported using a variety of file formats! Some examples of this are CSV, Excel, and even SQL databases!
+
+```{r}
+my_data <- read.csv("C:/) %>% as_tibble()
+my_data
+
+write_csv(data_data, "my_data.csv")
+```
+
+## Homework
+
+1.  Do 5 CodeWars problems in R. Share your solutions here:
+
+    ```{r}
+    # Problem 1:
+    Create a function with two arguments that will return an array of the first n multiples of x.
+
+    Assume both the given number and the number of times to count will be positive numbers greater than 0.
+
+    Return the results as an array or list ( depending on language ).
+
+    # Answer 1:
+    count_by <- function(x, n) {
+     
+      result <- c()
+      for (i in 1:n) {
+        result <- c(result, i * x)
+      }
+      result
+    }
+
+    # Problem 2: You are given two interior angles (in degrees) of a triangle.
+
+    Write a function to return the 3rd.
+
+    Note: only positive integers will be tested.
+
+    # Answer 2: other_angle <- function(a, b){
+    c <- 180 - a - b
+      c
+    }
+      
+    # Problem 3: Given an array of integers, return a new array with each value doubled.
+      
+    # Answer 3: maps <- function(v) {
+      double_maps <- v * 2
+      double_maps
+    }
+      
+    # Question 4: Given a non-empty array of integers, return the result of multiplying the values together in order.
+      
+    # Answer 4: grow <- function(arr) {
+      result <- 1
+      for (num in arr) {
+        result <- result * num
+      }
+      return(result)
+    }
+      
+    # Question 5: This kata is about multiplying a given number by eight if it is an even number and by nine otherwise.
+      
+    # Answer 5: simple_multiplication <- function(number) {
+      if (number %% 2 == 0) {
+        return(number * 8)
+      } else {
+        return(number * 9)
+      }
+    }
+    ```
+
+2.  Create a function that checks an input of type `int` and returns fizz if the number is a multiple of 3, buzz if the number is a multiple of 5, and fizzbuzz if the number is a multiple of 3 and 5.
+
+    ```{r}
+    fizzbuzz <- function(num) {
+      if (num %% 3 == 0 & num %% 5 == 0) {
+        return("fizzbuzz")
+      } else if (num %% 3 == 0) {
+        return("fizz")
+      } else if (num %% 5 == 0) {
+        return("buzz")
+      } else {
+        return(num)
+      }
+    }
+    print(fizzbuzz(12))
+    print(fizzbuzz(15))
+    print(fizzbuzz(20))
+    ```
+
+3.  **Mario Challenge:** In the classic Super Mario games, Mario ends each level by ascending a flight of stairs and leaping off the top to arrive at the castle at the end. (See [here](https://youtu.be/-avspZlbOWU?t=55) for details). We can imagine that each of the bricks of the stairs is a character X. Create a function that prints out a set of stairs. For example:
+
+    If the function is called marioStairs() and we pass in the value 4, we would expect to see stairs with a length of 4 and a height of 4:
+
+    X
+
+    XX
+
+    XXX
+
+    XXXX
+
+    ```{r}
+
+    marioStairs <- function(stair_size) {
+      for (i in 1:stair_size) {
+        print(paste(rep("X", i)))
+      }
+    }
+
+    marioStairs(4)
+
+    # You may feel more comfortable figuring this out in Python first, then translating into R later.
+    ```
